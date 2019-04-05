@@ -21,10 +21,10 @@ UKF::UKF() {
   P_ = MatrixXd(5, 5);
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 30;
+  std_a_ = 3;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 30;
+  std_yawdd_ = M_PI/6;
   
   /**
    * DO NOT MODIFY measurement noise values below.
@@ -92,15 +92,15 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       float x = mag* cos(ang);
       float y = mag* sin(ang);
 
-      x_ << x, y, 0, 0, 0;
+      x_ << x, y, 0.0, 0.0, 0.0;
     }
     else if (meas_package.sensor_type_ == MeasurementPackage::LASER) {
       /**
       Initialize state.
       */
-      x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0, 0, 0;
+      x_ << meas_package.raw_measurements_[0], meas_package.raw_measurements_[1], 0.0, 0.0, 0.0;
     } else {
-     x_ << 1, 1, 1, 1, 1;
+     x_ << 0.0, 0.0, 0.0, 0.0, 0.0;
     }
 
     //define spreading parameter
@@ -338,10 +338,8 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
   P_ = P_ - K*S*K.transpose();
 
   double nis = z_diff.transpose()*S.inverse()*z_diff;
-//   ofstream myfile;
-//   myfile.open ("nis_lidar.csv", ios::app);
-//   myfile << std::setprecision(12) << nis << std::endl;
-//   myfile.close();  
+  std::cout << "Lidar NIS: " << nis << std::endl;
+
   return;
 }
 
@@ -454,8 +452,5 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
   P_ = P_ - K*S*K.transpose();
 
   double nis = z_diff.transpose()*S.inverse()*z_diff;
-//   ofstream myfile;
-//   myfile.open ("nis_radar.csv", ios::app);
-//   myfile << std::setprecision(12) << nis << std::endl;
-//   myfile.close();
+  std::cout << "Radar NIS: " << nis << std::endl;
 }
